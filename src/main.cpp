@@ -28,6 +28,7 @@ const char *password = "Lululinda2021";
 int xx = 40,yy = 16, tt = 0;
 
 void RussiaAnthem();
+void setCurrentSun();
 void note(unsigned int frequency, unsigned long duration);
 void RGB_color(int red_light_value, int green_light_value, int blue_light_value);
 void showClock();
@@ -38,6 +39,7 @@ void ShowWifi(int xx, int yy, int tt);
 void ShowWalking(int xx, int yy, int tt);
 void ShowDumbbell(int xx, int yy, int tt);
 void ShowDeadLift(int xx, int yy, int tt);
+void ShowOffice(int xx, int yy, int tt);
 
 const uint8_t *askIcon(String main, String desc);
 
@@ -58,16 +60,15 @@ String formattedTime;
 
 Ticker ticker1(askWeather, 30000, 0, MILLIS);
 
+int sunrise[2];
+int sunset[2];
+
 #define BUZZER_PIN D5
 
-
-// R -> 6
-// G -> 7
-// B -> 8
 #define ledRojo D6
 #define ledVerde D7
 #define ledAzul D8
-
+  
 const int equisde = 3; 
 
 void setup(){
@@ -90,11 +91,12 @@ void setup(){
 		delay(500);
 	}
 
-	askWeather();
 	timeClient.begin();
 	timeClient.setTimeOffset(-10800); // (-3 _ 0 default) * 3600
+	askWeather();
+	setCurrentSun();
 	ticker1.start();
-	Serial.println(F("Conectado a WiFi"));
+	Serial.println("Conectado a WiFi");
 	Serial.println(WiFi.localIP());
 }
 
@@ -107,6 +109,9 @@ void loop(){
 	}
 	for (int i = 0; i < equisde; i++){
 		ShowDumbbell(40,16,0);
+	}
+	for (int i = 0; i < equisde; i++){
+		ShowOffice(40,16,10);
 	}
 	for (int i = 0; i < equisde; i++){	
 		showWeather();
@@ -124,7 +129,7 @@ const uint8_t *askIcon(String main, String desc){
 	if (main == "Clear")
 	{
 		Serial.println(formattedTime.substring(0, 2).toInt());
-		if (formattedTime.substring(0, 2).toInt() > 7 && formattedTime.substring(0, 2).toInt() < 20)
+		if (formattedTime.substring(0, 2).toInt() > sunrise[1] && formattedTime.substring(0, 2).toInt() < 20)
 		{
 			
 			Serial.println("Es dia soleado");
@@ -180,6 +185,7 @@ void showClock(){
 	formattedTime = timeClient.getFormattedTime();
 
 	unsigned long epochTime = timeClient.getEpochTime();
+
 	struct tm *ptm = gmtime((time_t *)&epochTime);
 
 	int currentDay = ptm->tm_mday;
@@ -190,11 +196,16 @@ void showClock(){
 
 	String currentArgDate =  String(currentDay) + "/" +String(currentMonth) + "/" + String(currentYear);
 
+	if(formattedTime.substring(0,2).toInt() > 6 && formattedTime.substring(0,2).toInt() < 7){
+		setCurrentSun();
+	}
+
 	display.setCursor(0, 10);
-	Serial.print("Current date: ");
-	Serial.println(currentArgDate);
-	Serial.print("Current day: ");
-	Serial.println(weekDays[timeClient.getDay()]);
+
+	// Serial.print("Current date: ");
+	// Serial.println(currentArgDate);
+	// Serial.print("Current day: ");
+	// Serial.println(weekDays[timeClient.getDay()]);
 
 	display.clearDisplay();
 	display.setTextSize(1);
@@ -212,8 +223,6 @@ void showClock(){
 void showWeather(){
 	//Printea datos de API
 
-	//after parsing data
-	//String temp = String((int)myObject["main"]["feels_like"]);
 	String temp = String((int)myObject["main"]["temp"]);
 	temp.remove(temp.indexOf("."));
 	temp = temp + " "+  (char)247 +"C";
@@ -222,9 +231,8 @@ void showWeather(){
 	JSONVar valor = myObject["weather"][0];
 	String estado =	valor.stringify(valor["main"]);
 	String estado2 = valor.stringify(valor["description"]);
-	Serial.println(temp);
-	Serial.println(estado + "  " + estado2);
-	//askIcon((const char*)valor["main"]);
+	// Serial.println(temp);
+	// Serial.println(estado + "  " + estado2);
 
 	// Display static text
 
@@ -276,8 +284,6 @@ void askWeather(){
 		Serial.println("Parsing input failed!");
 		return;
 	}
-	Serial.println("Pregunte el clima :)");
-
 
 	String temp = String((int)myObject["main"]["temp"]);
 	temp.remove(temp.indexOf("."));
@@ -928,6 +934,150 @@ void ShowDumbbell(int xx, int yy, int tt){
 	delay(tt);
 }
 
+void ShowOffice(int xx, int yy, int tt){
+	display.clearDisplay();
+	display.drawBitmap(xx, yy,office0,48,48, 1);
+	display.display();
+	delay(tt);
+
+	display.clearDisplay();
+	display.drawBitmap(xx, yy,office1,48,48, 1);
+	display.display();
+	delay(tt);
+
+	display.clearDisplay();
+	display.drawBitmap(xx, yy,office2,48,48, 1);
+	display.display();
+	delay(tt);
+
+	display.clearDisplay();
+	display.drawBitmap(xx, yy,office3,48,48, 1);
+	display.display();
+	delay(tt);
+
+	display.clearDisplay();
+	display.drawBitmap(xx, yy,office4,48,48, 1);
+	display.display();
+	delay(tt);
+
+	display.clearDisplay();
+	display.drawBitmap(xx, yy,office5,48,48, 1);
+	display.display();
+	delay(tt);
+
+	display.clearDisplay();
+	display.drawBitmap(xx, yy,office6,48,48, 1);
+	display.display();
+	delay(tt);
+
+	display.clearDisplay();
+	display.drawBitmap(xx, yy,office7,48,48, 1);
+	display.display();
+	delay(tt);
+
+	display.clearDisplay();
+	display.drawBitmap(xx, yy,office8,48,48, 1);
+	display.display();
+	delay(tt);
+
+	display.clearDisplay();
+	display.drawBitmap(xx, yy,office9,48,48, 1);
+	display.display();
+	delay(tt);
+
+	display.clearDisplay();
+	display.drawBitmap(xx, yy,office10,48,48, 1);
+	display.display();
+	delay(tt);
+
+	display.clearDisplay();
+	display.drawBitmap(xx, yy,office11,48,48, 1);
+	display.display();
+	delay(tt);
+
+	display.clearDisplay();
+	display.drawBitmap(xx, yy,office12,48,48, 1);
+	display.display();
+	delay(tt);
+
+	display.clearDisplay();
+	display.drawBitmap(xx, yy,office13,48,48, 1);
+	display.display();
+	delay(tt);
+
+	display.clearDisplay();
+	display.drawBitmap(xx, yy,office14,48,48, 1);
+	display.display();
+	delay(tt);
+
+	display.clearDisplay();
+	display.drawBitmap(xx, yy,office15,48,48, 1);
+	display.display();
+	delay(tt);
+
+	display.clearDisplay();
+	display.drawBitmap(xx, yy,office16,48,48, 1);
+	display.display();
+	delay(tt);
+
+	display.clearDisplay();
+	display.drawBitmap(xx, yy,office17,48,48, 1);
+	display.display();
+	delay(tt);
+
+	display.clearDisplay();
+	display.drawBitmap(xx, yy,office18,48,48, 1);
+	display.display();
+	delay(tt);
+
+	display.clearDisplay();
+	display.drawBitmap(xx, yy,office19,48,48, 1);
+	display.display();
+	delay(tt);
+
+	display.clearDisplay();
+	display.drawBitmap(xx, yy,office20,48,48, 1);
+	display.display();
+	delay(tt);
+
+	display.clearDisplay();
+	display.drawBitmap(xx, yy,office21,48,48, 1);
+	display.display();
+	delay(tt);
+
+	display.clearDisplay();
+	display.drawBitmap(xx, yy,office22,48,48, 1);
+	display.display();
+	delay(tt);
+
+	display.clearDisplay();
+	display.drawBitmap(xx, yy,office23,48,48, 1);
+	display.display();
+	delay(tt);
+
+	display.clearDisplay();
+	display.drawBitmap(xx, yy,office24,48,48, 1);
+	display.display();
+	delay(tt);
+
+	display.clearDisplay();
+	display.drawBitmap(xx, yy,office25,48,48, 1);
+	display.display();
+	delay(tt);
+
+	display.clearDisplay();
+	display.drawBitmap(xx, yy,office26,48,48, 1);
+	display.display();
+	delay(tt);
+
+	display.clearDisplay();
+	display.drawBitmap(xx, yy,office27,48,48, 1);
+	display.display();
+	delay(tt);
+
+}
+
+
 void RussiaAnthem(){
 	// Repeating I
 	for (int i = 0; i < NUMBER_OF_NOTES - 4; i++) {
@@ -949,9 +1099,22 @@ void note(unsigned int frequency, unsigned long duration) {
   noTone(BUZZER_PIN);
 }
 
-void RGB_color(int red_light_value, int green_light_value, int blue_light_value)
- {
+void RGB_color(int red_light_value, int green_light_value, int blue_light_value){
   analogWrite(ledRojo, red_light_value);
   analogWrite(ledVerde, green_light_value);
   analogWrite(ledAzul, blue_light_value);
+}
+
+void setCurrentSun(){
+	//Sunrise
+	unsigned long epochTimeSunrise = (int)myObject["sys"]["sunrise"];
+	struct tm *ptm = gmtime((time_t *)&epochTimeSunrise);
+	sunrise[0] = ptm->tm_hour-3;
+	sunrise[1] = ptm->tm_min;
+
+	//Sunset
+	unsigned long epochTimeSunset = (int)myObject["sys"]["sunset"];
+	struct tm *ptm2 = gmtime((time_t *)&epochTimeSunset);
+	sunset[0] = ptm2->tm_hour-3;
+	sunset[1] = ptm2->tm_min;
 }
